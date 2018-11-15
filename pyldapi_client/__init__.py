@@ -5,7 +5,7 @@ ver = sys.version_info
 py_ver_major = ver[0]
 if py_ver_major < 2:
     sys.exit(0)
-__version__ = "0.1.0.dev20181115"
+__version__ = "0.1.1"
 py_ver_minor = ver[1]
 if py_ver_major > 3:
     # for python >= 4.0, just assume 3.7
