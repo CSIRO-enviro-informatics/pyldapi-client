@@ -9,6 +9,8 @@ See the `pyLDAPI`_ module for more information.
 
 .. _pyLDAPI: https://pyldapi.readthedocs.io/
 
+PyPI Badge - *coming soon*
+
 Example usage
 =============
 
