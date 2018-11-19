@@ -15,7 +15,6 @@ Example usage
 -------------
 
 .. code-block:: python
-    :linenos:
 
     from pyldapi_client import LDAPIClient
 
