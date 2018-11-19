@@ -15,14 +15,35 @@ except ImportError:
 
 
 class LoadedRegister(object):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('uri', 'item_classes', 'payload')
 
     def __init__(self, uri, item_classes=None, payload=None):
+        """
+        TODO: Ashley
+
+        :param uri:
+        :type uri:
+
+        :param item_classes:
+        :type item_classes:
+
+        :param payload:
+        :type payload:
+        """
         self.uri = uri
         self.item_classes = item_classes or []
         self.payload = payload
 
     def get_current_page_details(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         page = 1
         per_page = 100
         first = 1
@@ -48,6 +69,15 @@ class LoadedRegister(object):
         return page, per_page, first, last
 
     def make_instance_uri(self, identifier):
+        """
+        TODO: Ashley
+
+        :param identifier:
+        :type identifier:
+
+        :return:
+        :rtype:
+        """
         if identifier.startswith("http:") or identifier.startswith("https:"):
             pass
         else:
@@ -55,6 +85,15 @@ class LoadedRegister(object):
         return identifier
 
     def filter_index(self, payload):
+        """
+        TODO: Ashley
+
+        :param payload:
+        :type payload:
+
+        :return:
+        :rtype:
+        """
         index = {}
         for p in payload:
             if "@id" not in p:
@@ -73,9 +112,33 @@ class LoadedRegister(object):
 
 
 class AbstractBoundIndexPage(object, metaclass=ABCMeta):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('register', 'index', 'page', 'per_page', 'first', 'last')
 
     def __init__(self, register, index, page, per_page, first, last):
+        """
+        TODO: Ashley
+
+        :param register:
+        :type register:
+
+        :param index:
+        :type index:
+
+        :param page:
+        :type page:
+
+        :param per_page:
+        :type per_page:
+
+        :param first:
+        :type first:
+
+        :param last:
+        :type last:
+        """
         self.register = register
         self.index = index
         self.page = page
@@ -84,21 +147,42 @@ class AbstractBoundIndexPage(object, metaclass=ABCMeta):
         self.last = last
 
     def items(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         for k, i in self.index.items():
             yield k, i
 
 
 
 class BoundIndexPage(AbstractBoundIndexPage):
+    """
+    TODO: Ashley
+    """
     __slots__ = tuple()
 
     def prev_page(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         if self.page == 1 or self.page <= self.first:
             return None
         index = self.register.index_page(self.page - 1, self.per_page)
         return index
 
     def next_page(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         if self.page >= self.last:
             return None
         index = self.register.index_page(self.page + 1, self.per_page)
@@ -107,35 +191,67 @@ class BoundIndexPage(AbstractBoundIndexPage):
 
 
 class AsyncBoundIndexPage(AbstractBoundIndexPage):
+    """
+    TODO: Ashley
+    """
     __slots__ = tuple()
 
     async def prev_page(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         if self.page == 1 or self.page <= self.first:
             return None
         index = await self.register.index_page(self.page - 1, self.per_page)
         return index
 
     async def next_page(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         if self.page >= self.last:
             return None
         index = await self.register.index_page(self.page + 1, self.per_page)
         return index
 
 class AbstractBoundRegister(object, metaclass=ABCMeta):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('register', 'client')
 
     def __init__(self, register, client):
+        """
+        TODO: Ashley
+
+        :param register:
+        :type register:
+
+        :param client:
+        :type client:
+        """
         self.register = register
         self.client = client
 
 
 class AsyncBoundRegister(AbstractBoundRegister):
+    """
+    TODO: Ashley
+    """
     __slots__ = tuple()
 
     async def index(self, min_count=None):
         """
-        Gets all of the ids of instances on this register
-        Note, this can take a long time for a large dataset
+        Gets all of the IDs of instances on this register.
+
+        Note: this can take a long time for a large dataset
+
         :return:
         :rtype: dict
         """
@@ -181,8 +297,10 @@ class AsyncBoundRegister(AbstractBoundRegister):
 
     async def instances(self, index=None, min_count=None):
         """
-        Gets all of the instances on this register
-        Note, this can take a _very_ long time for a large dataset
+        Gets all of the instances on this register.
+
+        Note: this can take a *very* long time for a large dataset.
+
         :return:
         :rtype: dict
         """
@@ -231,6 +349,18 @@ class AsyncBoundRegister(AbstractBoundRegister):
         return ret_dict
 
     async def index_page(self, page=None, per_page=None):
+        """
+        TODO: Ashley
+
+        :param page:
+        :type page:
+
+        :param per_page:
+        :type per_page:
+
+        :return:
+        :rtype:
+        """
         current_page, current_per_page, first, last = self.register.get_current_page_details()
         if page is None:
             page = current_page or 1
@@ -254,18 +384,32 @@ class AsyncBoundRegister(AbstractBoundRegister):
         return AsyncBoundIndexPage(self, index, current_page, current_per_page, first, last)
 
     async def instance(self, identifier):
+        """
+        TODO: Ashley
+
+        :param identifier:
+        :type identifier:
+
+        :return:
+        :rtype:
+        """
         id_uri = self.register.make_instance_uri(identifier)
         resp = await self.client._get_register_instance(self.register.uri, id_uri)
         return resp
 
 
 class BoundRegister(AbstractBoundRegister):
+    """
+    TODO: Ashley
+    """
     __slots__ = tuple()
 
     def _index_threaded(self, first, last, min_count):
         """
-        Gets all of the ids of instances on this register
-        Note, this can take a long time for a large dataset
+        Gets all of the ids of instances on this register.
+
+        Note: this can take a long time for a large dataset.
+
         :return:
         :rtype: dict
         """
@@ -323,7 +467,9 @@ class BoundRegister(AbstractBoundRegister):
     def index(self, min_count=None):
         """
         Gets all of the ids of instances on this register
-        Note, this can take a long time for a large dataset
+
+        Note: this can take a long time for a large dataset
+
         :return:
         :rtype: dict
         """
@@ -356,8 +502,9 @@ class BoundRegister(AbstractBoundRegister):
 
     def instances(self, index=None, min_count=None):
         """
-        Gets all of the instances on this register
-        Note, this can take a _very_ long time for a large dataset
+        Gets all of the instances on this register.
+        Note: this can take a *very* long time for a large dataset.
+
         :return:
         :rtype: dict
         """
@@ -389,8 +536,9 @@ class BoundRegister(AbstractBoundRegister):
 
     def _instances_threaded(self, index, min_count):
         """
-        Gets all of the instances on this register
-        Note, this can take a _very_ long time for a large dataset
+        Gets all of the instances on this register.
+        Note: this can take a *very* long time for a large dataset.
+
         :return:
         :rtype: dict
         """
@@ -448,6 +596,18 @@ class BoundRegister(AbstractBoundRegister):
         return ret_dict
 
     def index_page(self, page=None, per_page=None):
+        """
+        TODO: Ashley
+
+        :param page:
+        :type page:
+
+        :param per_page:
+        :type per_page:
+
+        :return:
+        :rtype:
+        """
         current_page, current_per_page, first, last = self.register.get_current_page_details()
         if page is None:
             page = current_page or 1
@@ -471,15 +631,42 @@ class BoundRegister(AbstractBoundRegister):
         return BoundIndexPage(self, index, current_page, current_per_page, first, last)
 
     def instance(self, identifier):
+        """
+        TODO: Ashley
+
+        :param identifier:
+        :type identifier:
+
+        :return:
+        :rtype:
+        """
         uri = self.register.make_instance_uri(identifier)
         resp = self.client._get_register_instance(self.register.uri, uri)
         return resp
 
 
 class AbstractLDAPIClient(object, metaclass=ABCMeta):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('base_uri', 'url_remapper', '_registers', 'session')
 
     def __init__(self, base_uri, *args, url_remapper=None, **kwargs):
+        """
+        TODO: Ashley
+
+        :param base_uri:
+        :type base_uri:
+
+        :param args:
+        :type args:
+
+        :param url_remapper:
+        :type url_remapper:
+
+        :param kwargs:
+        :type kwargs:
+        """
         self.base_uri = base_uri
         self.url_remapper = url_remapper
         self._registers = {}
@@ -488,9 +675,22 @@ class AbstractLDAPIClient(object, metaclass=ABCMeta):
 
     @abstractmethod
     def _populate_registers(self):
+        """
+        TODO: Ashley
+
+        :return:
+        """
         pass
 
     def _remap_url(self, url):
+        """
+        TODO: Ashley
+
+        :param url:
+        :type url:
+
+        :return:
+        """
         if self.url_remapper is None:
             return url
         for u, v in self.url_remapper.items():
@@ -501,13 +701,40 @@ class AbstractLDAPIClient(object, metaclass=ABCMeta):
 
     @abstractmethod
     def register(self, reg_uri):
+        """
+        TODO: Ashley
+
+        :param reg_uri:
+        :type reg_uri:
+
+        :return:
+        :rtype:
+        """
         pass
 
 
 class LDAPIClient(AbstractLDAPIClient):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('threads',)
 
     def __new__(cls, *args, asynchronous=False, **kwargs):
+        """
+        TODO: Ashley
+
+        :param args:
+        :type args:
+
+        :param asynchronous:
+        :type asynchronous:
+
+        :param kwargs:
+        :type kwargs:
+
+        :return:
+        :rtype:
+        """
         if asynchronous:
             return AsyncLDAPIClient(*args, **kwargs)
         self = super(LDAPIClient, cls).__new__(cls)
@@ -515,11 +742,37 @@ class LDAPIClient(AbstractLDAPIClient):
 
     def __init__(self, base_uri, *args, url_remapper=None,
                  threads=1, **kwargs):
+        """
+
+        :param base_uri:
+        :type base_uri:
+
+        :param args:
+        :type args:
+
+        :param url_remapper:
+        :type url_remapper:
+
+        :param threads:
+        :type threads:
+
+        :param kwargs:
+        :type kwargs:
+        """
         super(LDAPIClient, self).__init__(
             base_uri, *args, url_remapper=url_remapper, **kwargs)
         self.threads = threads
 
     def register(self, reg_uri):
+        """
+        TODO: Ashley
+
+        :param reg_uri:
+        :type reg_uri:
+
+        :return:
+        :rtype:
+        """
         try:
             register = self._registers[reg_uri]
         except KeyError as k:
@@ -527,6 +780,18 @@ class LDAPIClient(AbstractLDAPIClient):
         return BoundRegister(register, client=self)
 
     def _get_register_instance(self, register_uri, instance_uri):
+        """
+        TODO: Ashley
+
+        :param register_uri:
+        :type register_uri:
+
+        :param instance_uri:
+        :type instance_uri:
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -540,6 +805,21 @@ class LDAPIClient(AbstractLDAPIClient):
         return payload
 
     def _get_register_index(self, register_uri, page=1, per_page=100):
+        """
+        TODO: Ashley
+
+        :param register_uri:
+        :type register_uri:
+
+        :param page:
+        :type page:
+
+        :param per_page:
+        :type per_page:
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -557,6 +837,12 @@ class LDAPIClient(AbstractLDAPIClient):
         return payload
 
     def _populate_registers(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -587,9 +873,27 @@ class LDAPIClient(AbstractLDAPIClient):
 
 
 class AsyncLDAPIClient(AbstractLDAPIClient):
+    """
+    TODO: Ashley
+    """
     __slots__ = ('_loop',)
 
     def __new__(cls, *args, loop=None, **kwargs):
+        """
+        TODO: Ashley
+
+        :param args:
+        :type args:
+
+        :param loop:
+        :type loop:
+
+        :param kwargs:
+        :type kwargs:
+
+        :return:
+        :rtype:
+        """
         if loop is None:
             loop = asyncio.get_event_loop()
         self = super(AsyncLDAPIClient, cls).__new__(cls)
@@ -598,10 +902,28 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         return self.__async_init__(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):
+        """
+        TODO: Ashley
+
+        :param args:
+        :type args:
+
+        :param kwargs:
+        :type kwargs:
+        """
         # deliberately don't call super init here, because we use an async init
         object.__init__(self)
 
     def register(self, reg_uri):
+        """
+        TODO: Ashley
+
+        :param reg_uri:
+        :type reg_uri:
+
+        :return:
+        :rtype:
+        """
         try:
             register = self._registers[reg_uri]
         except KeyError as k:
@@ -609,6 +931,18 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         return AsyncBoundRegister(register, client=self)
 
     async def _get_register_instance(self, register_uri, instance_uri):
+        """
+        TODO: Ashley
+
+        :param register_uri:
+        :type register_uri:
+
+        :param instance_uri:
+        :type instance_uri:
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -622,6 +956,21 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         return payload
 
     async def _get_register_index(self, register_uri, page=1, per_page=100):
+        """
+        TODO: Ashley
+
+        :param register_uri:
+        :type register_uri:
+
+        :param page:
+        :type page:
+
+        :param per_page:
+        :type per_page:
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -639,6 +988,12 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         return payload
 
     async def _populate_registers(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         headers = {
             "Accept": "application/ld+json",
             "Accept-Profile": "http://purl.org/linked-data/registry"
@@ -665,6 +1020,24 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         self._registers = registers
 
     async def __async_init__(self, base_uri, *args, url_remapper=None, **kwargs):
+        """
+        TODO: Ashley
+
+        :param base_uri:
+        :type base_uri:
+
+        :param args:
+        :type args:
+
+        :param url_remapper:
+        :type url_remapper:
+
+        :param kwargs:
+        :type kwargs:
+
+        :return:
+        :rtype:
+        """
         self.base_uri = base_uri
         self.url_remapper = url_remapper
         self._registers = {}
@@ -673,11 +1046,23 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         return self
 
     async def close(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         r = await self.session.close()
         return r
 
     @property
     def loop(self):
+        """
+        TODO: Ashley
+
+        :return:
+        :rtype:
+        """
         return self._loop
 
 

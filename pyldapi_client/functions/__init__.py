@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 """
-Utility functions shared between the py27 and py35 versions of ldapi-client
-In theory all of these should be compatible with _all_ versions of python
+Utility functions shared between the py27 and py35 versions of pyLDAPI Client.
+In theory, all of these functions should be compatible with *all* versions of python.
 """
 import re
 
@@ -18,6 +18,15 @@ page_matcher = re.compile(r"[\&|\?]page=([0-9]+)")
 
 
 def extract_page_from_string(page_string):
+    """
+    TODO: Ashley
+
+    :param page_string:
+    :type page_string:
+
+    :return:
+    :rtype:
+    """
     page_matches = page_matcher.search(page_string)
     if page_matches:
         page = int(page_matches.group(1))
@@ -27,6 +36,15 @@ def extract_page_from_string(page_string):
 
 
 def extract_per_page_from_string(page_string):
+    """
+    TODO: Ashley
+
+    :param page_string:
+    :type page_string:
+
+    :return:
+    :rtype:
+    """
     per_page_matches = per_page_matcher.search(page_string)
     if per_page_matches:
         per_page = int(per_page_matches.group(1))
@@ -36,6 +54,21 @@ def extract_per_page_from_string(page_string):
 
 
 def find_registers_from_ld_payload(uri, json_payload, container):
+    """
+    TODO: Ashley
+
+    :param uri:
+    :type uri:
+
+    :param json_payload:
+    :type json_payload:
+
+    :param container:
+    :type container:
+
+    :return:
+    :rtype:
+    """
     assert isinstance(json_payload, list), "The json payload must be a list of objects."
     registers = {}
     for r in json_payload:
