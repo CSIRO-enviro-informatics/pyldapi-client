@@ -208,7 +208,7 @@ class BoundRegister(AbstractBoundRegister):
     """
     __slots__ = tuple()
 
-    def index_threaded(self, first, last):
+    def _index_threaded(self, first, last, min_count):
         """
         Gets all of the ids of instances on this register
         Note, this can take a long time for a large dataset
@@ -279,9 +279,11 @@ class BoundRegister(AbstractBoundRegister):
                 except Exception, e:
                     print e
                     continue
+            if min_count is not None and len(index) >= min_count:
+                break
         return index
 
-    def index(self):
+    def index(self, min_count=None):
         """
         Gets all of the ids of instances on this register
         Note, this can take a long time for a large dataset
@@ -297,7 +299,7 @@ class BoundRegister(AbstractBoundRegister):
         if last == first:
             return self.index_page(first).index
         if self.client.threads and self.client.threads > 1:
-            return self.index_threaded(first, last)
+            return self._index_threaded(first, last, min_count)
 
         index = {}
         for p in xrange(first, last+1):
@@ -312,6 +314,8 @@ class BoundRegister(AbstractBoundRegister):
             except Exception, e:
                 print e
                 continue
+            if min_count is not None and len(index) >= min_count:
+                break
         return index
 
     def instances(self, index=None, min_count=None):
@@ -333,7 +337,7 @@ class BoundRegister(AbstractBoundRegister):
         if isinstance(index, dict):
             index = tuple(index.keys())
         if self.client.threads and self.client.threads > 1:
-            return self.instances_threaded(index, min_count=min_count)
+            return self._instances_threaded(index, min_count)
         instance_count = len(index)
         ret_dict = {}
 
@@ -354,7 +358,7 @@ class BoundRegister(AbstractBoundRegister):
                 break
         return ret_dict
 
-    def instances_threaded(self, index, min_count=None):
+    def _instances_threaded(self, index, min_count):
         """
         Gets all of the instances on this register
         Note, this can take a _very_ long time for a large dataset
