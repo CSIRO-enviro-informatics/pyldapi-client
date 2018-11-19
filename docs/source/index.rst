@@ -14,7 +14,7 @@ See the `pyLDAPI`_ module for more information.
 .. _pyLDAPI: https://pyldapi.readthedocs.io/
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Background
 
    readme_symlink
