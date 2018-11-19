@@ -1,0 +1,5 @@
+rdflib
+sphinx
+sphinx_rtd_theme
+aiohttp>=2.3.0,<=3.2.1
+requests

@@ -21,3 +21,8 @@ Note: To see changes for the toctree, the documents must be generated again. In 
 
 # Note:
 Since Sphinx docs is generating using python3, we are only covering the documentation for the python3 codebase.
+
+# Read the Docs
+Default settings will fail when deploying to Read the Docs. This is because the project's requirements are split up into multiple files.
+
+Since we are only deploying documentation (currently) for python3+, I've made a `rtd-requirements.txt` at the root of this project's directory. Read the Docs settings has also been modified to install from the new requirements file. We needed to create this new file because Read the Docs only installs dependencies from **one** file, meanwhile, our dependencies for a python3 installation requires reading from both `requirements.txt` as well as `requirements-py35.txt`.
