@@ -20,7 +20,9 @@ Example usage
 Documentation
 -------------
 
-*Coming soon.*
+Read the documentation at `http://pyldapi-client.readthedocs.io/`_.
+
+.. _http://pyldapi-client.readthedocs.io/: http://pyldapi-client.readthedocs.io/
 
 
 Implementations of pyLDAPI Client
