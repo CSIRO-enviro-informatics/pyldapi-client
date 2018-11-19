@@ -1,5 +1,5 @@
 Welcome to pyLDAPI Client
-*************************
+=========================
 
 The Python client library for the Python Linked Data API (pyLDAPI) is:
 
@@ -12,25 +12,25 @@ See the `pyLDAPI`_ module for more information.
 PyPI Badge - *coming soon*
 
 Example usage
-=============
+-------------
 
 .. literalinclude:: ../../tests/test1.py
 
 
 Documentation
-=============
+-------------
 
 *Coming soon.*
 
 
 Implementations of pyLDAPI Client
-=================================
+---------------------------------
 
 * **LOC-I Index File Exporter**
 
 
 Licence
-=======
+-------
 
 This module is licensed under Apache Software License v2.0. See the `LICENSE deed`_ for details.
 
@@ -38,10 +38,10 @@ This module is licensed under Apache Software License v2.0. See the `LICENSE dee
 
 
 Contact
-=======
+-------
 
 Nicholas Car (lead)
--------------------
+~~~~~~~~~~~~~~~~~~~
 | *Senior Experimental Scientist*
 | `CSIRO Land and Water`_
 | `nicholas.car@csiro.au`_
@@ -51,7 +51,7 @@ Nicholas Car (lead)
 .. _http://orcid.org/0000-0002-8742-7730: http://orcid.org/0000-0002-8742-7730
 
 Ashley Sommer (senior developer)
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | *Informatics Software Engineer*
 | `CSIRO Land and Water`_
 | `ashley.sommer@csiro.au`_
