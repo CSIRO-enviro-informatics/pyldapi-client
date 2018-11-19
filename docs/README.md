@@ -18,3 +18,6 @@ Note: To see changes for the toctree, the documents must be generated again. In 
 # PyCharm optional but recommended settings
 * https://www.jetbrains.com/help/pycharm/documenting-source-code.html
 * https://www.jetbrains.com/help/pycharm/restructured-text.html
+
+# Note:
+Since Sphinx docs is generating using python3, we are only covering the documentation for the python3 codebase.

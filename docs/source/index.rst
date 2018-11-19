@@ -31,12 +31,6 @@ See the `pyLDAPI`_ module for more information.
    :caption: API
 
    functions
-   ldapiclient_py27
+   ldapiclient_py3
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
