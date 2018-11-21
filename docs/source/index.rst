@@ -25,6 +25,7 @@ See the `pyLDAPI`_ module for more information.
    :caption: Getting Started
 
    installation
+   indices_and_tables
 
 .. toctree::
    :maxdepth: 1
