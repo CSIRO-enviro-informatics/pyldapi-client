@@ -7,17 +7,7 @@
 pyLDAPI Client Documentation
 ============================
 
-*A Simple helper library for consuming registers, indexes, and instances of classes exposed via a pyLDAPI endpoint.*
-
-See the `pyLDAPI`_ module for more information.
-
-.. _pyLDAPI: https://pyldapi.readthedocs.io/
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Background
-
-   readme_symlink
+.. include:: ../../README.rst
 
 
 .. toctree::
@@ -25,6 +15,8 @@ See the `pyLDAPI`_ module for more information.
    :caption: Getting Started
 
    installation
+   setup
+   usage
    indices_and_tables
 
 .. toctree::
