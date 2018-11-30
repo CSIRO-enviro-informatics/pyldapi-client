@@ -208,7 +208,7 @@ class BoundRegister(AbstractBoundRegister):
     """
     __slots__ = tuple()
 
-    def _index_threaded(self, first, last, min_count):
+    def _index_threaded(self, first, last, offset_entries, min_count):
         """
         Gets all of the ids of instances on this register
         Note, this can take a long time for a large dataset
@@ -257,9 +257,9 @@ class BoundRegister(AbstractBoundRegister):
 
         for c in xrange(chunks):
             jobs = []
-            page_offset = c*8
+            c_page_offset = c*8
             pages = {}
-            for i, p in enumerate(xrange(page_offset+first, page_offset+first+num_threads)):
+            for i, p in enumerate(xrange(c_page_offset+first, c_page_offset+first+num_threads)):
                 page_job = threading.Thread(target=_thread_job, args=(i, p))
                 page_job.start()
                 jobs.append(page_job)
@@ -274,6 +274,11 @@ class BoundRegister(AbstractBoundRegister):
                 elif isinstance(p, Exception):
                     print p
                     continue
+                if offset_entries:
+                    skip_entries = sorted(p.index.iterkeys())[:offset_entries]
+                    for s in skip_entries:
+                        _ = p.index.pop(s)
+                    offset_entries = 0
                 try:
                     index.update(p.index)
                 except Exception, e:
@@ -283,7 +288,7 @@ class BoundRegister(AbstractBoundRegister):
                 break
         return index
 
-    def index(self, min_count=None):
+    def index(self, offset=None, min_count=None):
         """
         Gets all of the ids of instances on this register
         Note, this can take a long time for a large dataset
@@ -296,10 +301,15 @@ class BoundRegister(AbstractBoundRegister):
             self.register.get_current_page_details()
         if last < first:
             last = first
-        if last == first:
+        if last == first and offset is None:
             return self.index_page(first).index
+        if offset and offset > 0:
+            offset_pages = offset // current_per_page
+            offset_entries = offset - (offset_pages * current_per_page)
+            first = first+offset_pages
+            last = last+offset_pages
         if self.client.threads and self.client.threads > 1:
-            return self._index_threaded(first, last, min_count)
+            return self._index_threaded(first, last, offset_entries, min_count)
 
         index = {}
         for p in xrange(first, last+1):
@@ -309,6 +319,11 @@ class BoundRegister(AbstractBoundRegister):
             elif isinstance(page, Exception):
                 print page
                 continue
+            if offset_entries:
+                skip_entries = sorted(p.index.iterkeys())[:offset_entries]
+                for s in skip_entries:
+                    _ = p.index.pop(s)
+                offset_entries = 0
             try:
                 index.update(page.index)
             except Exception, e:
@@ -335,7 +350,7 @@ class BoundRegister(AbstractBoundRegister):
         if index is None:
             index = self.index()
         if isinstance(index, dict):
-            index = tuple(index.keys())
+            index = tuple(index.iterkeys())
         if self.client.threads and self.client.threads > 1:
             return self._instances_threaded(index, min_count)
         instance_count = len(index)
@@ -368,7 +383,7 @@ class BoundRegister(AbstractBoundRegister):
         """
         num_threads = int(self.client.threads)
         if isinstance(index, dict):
-            index = tuple(index.keys())
+            index = tuple(index.iterkeys())
         instance_count = len(index)
         chunks = instance_count // num_threads
         if chunks < 1:
@@ -404,7 +419,7 @@ class BoundRegister(AbstractBoundRegister):
                     j.join()
                 except Exception:
                     pass
-            for identifier, instance in instances.items():
+            for identifier, instance in instances.iteritems():
                 if instance is None:
                     continue
                 elif isinstance(instance, Exception):
@@ -661,8 +676,8 @@ class LDAPIClient(AbstractLDAPIClient):
         text = response.text
         json_struct = json.loads(text)
         registers = find_registers_from_ld_payload(self.base_uri, json_struct, LoadedRegister)
-        found_registers = registers.keys()
-        for uri in found_registers:
+        first_registers = list(registers.iterkeys())
+        for uri in first_registers:
             r = registers[uri]
             if not r.payload:
                 url = self._remap_url(uri)

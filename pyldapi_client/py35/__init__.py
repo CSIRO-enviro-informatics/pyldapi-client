@@ -246,7 +246,7 @@ class AsyncBoundRegister(AbstractBoundRegister):
     """
     __slots__ = tuple()
 
-    async def index(self, min_count=None):
+    async def index(self, offset=None, min_count=None):
         """
         Gets all of the IDs of instances on this register.
 
@@ -259,9 +259,16 @@ class AsyncBoundRegister(AbstractBoundRegister):
             self.register.get_current_page_details()
         if last < first:
             last = first
-        if last == first:
+        if last == first and offset is None:
             page = await self.index_page(first)
             return page.index
+        if offset and offset > 0:
+            offset_pages = offset // current_per_page
+            offset_entries = offset - (offset_pages * current_per_page)
+            first = first+offset_pages
+            last = last+offset_pages
+        else:
+            offset_entries = 0
         # plus 1 because first and last are inclusive.
         total_pages = (last - first) + 1
         if total_pages < 1:
@@ -286,6 +293,11 @@ class AsyncBoundRegister(AbstractBoundRegister):
                 elif isinstance(p, Exception):
                     print(p)
                     continue
+                if offset_entries:
+                    skip_entries = sorted(p.index.keys())[:offset_entries]
+                    for s in skip_entries:
+                        _ = p.index.pop(s)
+                    offset_entries = 0
                 try:
                     index.update(p.index)
                 except Exception as e:
@@ -404,7 +416,7 @@ class BoundRegister(AbstractBoundRegister):
     """
     __slots__ = tuple()
 
-    def _index_threaded(self, first, last, min_count):
+    def _index_threaded(self, first, last, offset_entries, min_count):
         """
         Gets all of the ids of instances on this register.
 
@@ -438,9 +450,9 @@ class BoundRegister(AbstractBoundRegister):
 
         for c in range(chunks):
             jobs = []
-            page_offset = c*8
+            c_page_offset = c*8
             pages = {}
-            for i, p in enumerate(range(page_offset+first, page_offset+first+num_threads)):
+            for i, p in enumerate(range(c_page_offset+first, c_page_offset+first+num_threads)):
                 page_job = threading.Thread(target=_thread_job, args=(i, p))
                 page_job.start()
                 jobs.append(page_job)
@@ -455,6 +467,11 @@ class BoundRegister(AbstractBoundRegister):
                 elif isinstance(p, Exception):
                     print(p)
                     continue
+                if offset_entries:
+                    skip_entries = sorted(p.index.keys())[:offset_entries]
+                    for s in skip_entries:
+                        _ = p.index.pop(s)
+                    offset_entries = 0
                 try:
                     index.update(p.index)
                 except Exception as e:
@@ -464,7 +481,7 @@ class BoundRegister(AbstractBoundRegister):
                 break
         return index
 
-    def index(self, min_count=None):
+    def index(self, offset=None, min_count=None):
         """
         Gets all of the ids of instances on this register
 
@@ -478,11 +495,17 @@ class BoundRegister(AbstractBoundRegister):
             self.register.get_current_page_details()
         if last < first:
             last = first
-        if last == first:
+        if last == first and offset is None:
             return self.index_page(first).index
+        if offset and offset > 0:
+            offset_pages = offset // current_per_page
+            offset_entries = offset - (offset_pages * current_per_page)
+            first = first+offset_pages
+            last = last+offset_pages
+        else:
+            offset_entries = 0
         if self.client.threads and self.client.threads > 1:
-            return self._index_threaded(first, last, min_count)
-
+            return self._index_threaded(first, last, offset_entries, min_count)
         index = {}
         for p in range(first, last+1):
             page = self.index_page(page=p)
@@ -491,6 +514,11 @@ class BoundRegister(AbstractBoundRegister):
             elif isinstance(page, Exception):
                 print(page)
                 continue
+            if offset_entries:
+                skip_entries = sorted(page.index.keys())[:offset_entries]
+                for s in skip_entries:
+                    _ = page.index.pop(s)
+                offset_entries = 0
             try:
                 index.update(page.index)
             except Exception as e:
@@ -798,6 +826,10 @@ class LDAPIClient(AbstractLDAPIClient):
         }
         url = self._remap_url(instance_uri)
         resp = self.session.get(url, headers=headers)
+        if resp.status_code == 404:
+            raise RuntimeError((404, instance_uri))
+        elif resp.status_code == 500:
+            raise RuntimeError((500, instance_uri))
         if resp.status_code != 200:
             return resp.status_code
         text = resp.text
@@ -854,8 +886,8 @@ class LDAPIClient(AbstractLDAPIClient):
         text = response.text
         json_struct = json.loads(text)
         registers = find_registers_from_ld_payload(self.base_uri, json_struct, LoadedRegister)
-        found_registers = registers.keys()
-        for uri in found_registers:
+        first_registers = list(registers.keys())
+        for uri in first_registers:
             r = registers[uri]
             if not r.payload:
                 url = self._remap_url(uri)
@@ -1005,8 +1037,8 @@ class AsyncLDAPIClient(AbstractLDAPIClient):
         text = await response.text()
         json_struct = json.loads(text)
         registers = find_registers_from_ld_payload(self.base_uri, json_struct, LoadedRegister)
-        found_registers = registers.keys()
-        for uri in found_registers:
+        first_registers = list(registers.keys())
+        for uri in first_registers:
             r = registers[uri]
             if not r.payload:
                 url = self._remap_url(uri)
